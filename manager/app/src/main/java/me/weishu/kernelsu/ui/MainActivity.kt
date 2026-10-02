@@ -266,13 +266,14 @@ fun MainScreen(
 ) {
     val navController = LocalNavigator.current
     val enableBlur = LocalEnableBlur.current
-    val enableFloatingBottomBar = LocalEnableFloatingBottomBar.current
-    val enableFloatingBottomBarBlur = LocalEnableFloatingBottomBarBlur.current
-    val useNavigationRail = useNavigationRail(enableFloatingBottomBar)
+    // UI-only shell build: always use the floating (liquid-glass) bottom bar.
+    val enableFloatingBottomBar = true
+    val enableFloatingBottomBarBlur = true
+    val useRail = false
     val pagerState = rememberPagerState(initialPage = initialPage, pageCount = { MainPagerConfig.PAGE_COUNT })
     val mainPagerState = rememberMainPagerState(
         pagerState = pagerState,
-        animatePageChanges = !useNavigationRail,
+        animatePageChanges = !useRail,
     )
     val isFullFeatured = Natives.isFullFeatured()
     val pagerMode = PagerInterceptionMode.entries.getOrElse(pagerInterceptionMode) {
@@ -390,18 +391,14 @@ fun MainScreen(
                         snapAnimationSpec = PagerNavigationSpringSpec,
                     ),
                 ) { page ->
-                    val isCurrentPage = page == settledPage
-                    when (page) {
-                        0 -> if (contentReady || isCurrentPage) PlaceholderPage("页面1")
-                        1 -> if (contentReady || isCurrentPage) PlaceholderPage("页面2")
-                        2 -> if (contentReady || isCurrentPage) PlaceholderPage("页面3")
-                        3 -> if (contentReady || isCurrentPage) SettingPager(navController, bottomInnerPadding, isCurrentPage)
-                    }
+                    // UI-only shell build: every page is intentionally empty.
+                    // Only the floating (liquid-glass) bottom bar is kept.
+                    Box(modifier = Modifier.fillMaxSize())
                 }
             }
         }
 
-        if (useNavigationRail) {
+        if (useRail) {
             val startInsets = WindowInsets.systemBars.union(WindowInsets.displayCutout)
                 .only(WindowInsetsSides.Start)
             val navBarBottomPadding = WindowInsets.systemBars.asPaddingValues().calculateBottomPadding()
